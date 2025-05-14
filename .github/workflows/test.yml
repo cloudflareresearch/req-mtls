@@ -1,0 +1,37 @@
+name: Test Go Server
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-server:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build artifacts
+      run: |
+        make artefacts
+        chmod +x ./bin/server ./bin/client
+
+    - name: Run server in background
+      run: |
+        ./bin/server -cert ./testdata/certs/server.crt -key ./testdata/certs/server.key -client-cacert ./testdata/certs/rootCA.crt &
+        echo $! > server.pid
+        sleep 2  # wait for server to start
+
+    - name: Run client test
+      run: |
+        ./bin/client -cert ./testdata/certs/client.crt -key ./testdata/certs/client.key -server-cacert ./testdata/certs/rootCA.crt -tlsflags 80 --connect https://localhost:8775/debug
+        # Check exit code to determine if client succeeded
+        echo "Client test passed"
+
+    - name: Cleanup
+      if: always()
+      run: |
+        kill $(cat server.pid) || true

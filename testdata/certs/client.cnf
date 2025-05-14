@@ -1,0 +1,26 @@
+[ req ]
+distinguished_name = req_distinguished_name
+x509_extensions = user_crt 
+req_extensions = v3_req
+oid_section = delegated_credentials
+prompt = no
+
+[ req_distinguished_name ]
+countryName = US
+stateOrProvinceName = California
+localityName = San Francisco
+0.organizationName = ACME Ltd
+organizationalUnitName = ACME
+
+[ v3_req ]
+basicConstraints = critical,CA:false
+extendedKeyUsage = clientAuth
+keyUsage = digitalSignature
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = client.example
+
+[ user_crt ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer

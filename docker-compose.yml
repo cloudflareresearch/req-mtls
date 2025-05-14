@@ -1,0 +1,18 @@
+services:
+  client:
+    build:
+      context: .
+      target: client
+    volumes:
+      - ./testdata:/testdata:r
+    network_mode: "host"
+
+  server:
+    build:
+      context: .
+      target: server
+    volumes:
+      - ./testdata:/testdata:r
+    ports:
+      - "8775:8775"
+    network_mode: "host"
